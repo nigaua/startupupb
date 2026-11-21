@@ -1,4 +1,7 @@
-import { type FormEvent, useEffect, useState } from "react";
+import { type CSSProperties, type FormEvent, useEffect, useState } from "react";
+
+const revealDelay = (ms: number): CSSProperties =>
+  ({ "--reveal-delay": `${ms}ms` }) as CSSProperties;
 
 type PageRoute = "/" | "/doneaza" | "/voluntari" | "/faq" | "/despre-noi";
 
@@ -191,7 +194,7 @@ function ChevronDownIcon({ open }: { open: boolean }) {
     <svg
       aria-hidden="true"
       viewBox="0 0 20 20"
-      className={`size-5 shrink-0 text-[#0B3B6E] transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+      className={`size-5 shrink-0 text-[#0B3B6E] transition-transform duration-200 ease-[var(--ease-out)] ${open ? "rotate-180" : ""}`}
       fill="none"
     >
       <path
@@ -261,6 +264,38 @@ export default function App() {
     return () => window.removeEventListener("popstate", onPopState);
   }, []);
 
+  useEffect(() => {
+    const nodes = Array.from(document.querySelectorAll<HTMLElement>("[data-reveal]"));
+    if (nodes.length === 0) return;
+
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduceMotion || typeof IntersectionObserver === "undefined") {
+      nodes.forEach((node) => node.setAttribute("data-reveal", "visible"));
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.setAttribute("data-reveal", "visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.08, rootMargin: "0px 0px -28px 0px" },
+    );
+
+    const frame = window.requestAnimationFrame(() => {
+      nodes.forEach((node) => observer.observe(node));
+    });
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      observer.disconnect();
+    };
+  }, [route]);
+
   const navigate = (nextRoute: PageRoute) => {
     if (nextRoute !== route) {
       window.history.pushState({}, "", nextRoute);
@@ -326,14 +361,14 @@ export default function App() {
   };
 
   const segment = (active: boolean) =>
-    `cursor-pointer rounded-[9px] px-3 py-2 text-[13px] font-bold transition ${
+    `pressable cursor-pointer rounded-[9px] px-3 py-2 text-[13px] font-bold ${
       active
         ? "bg-white text-[#0B3B6E] shadow-[0_1px_3px_rgba(15,23,42,0.12)]"
         : "text-[#64748B] hover:text-[#0F172A]"
     }`;
 
   return (
-    <div className="flex min-h-[100dvh] flex-col bg-[#F8FAFC] text-[#0F172A]">
+    <div className="flex min-h-[100dvh] flex-col overflow-x-clip bg-[#F8FAFC] text-[#0F172A]">
       <header className="pointer-events-none fixed inset-x-0 top-3.5 z-40 flex justify-center px-3 sm:px-5">
         <div className="pointer-events-auto flex h-12 w-fit max-w-full items-center gap-4 rounded-2xl border border-white/15 bg-[#0B2545]/92 px-3.5 shadow-[0_14px_34px_-12px_rgba(2,8,23,0.55),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-md sm:gap-6 sm:px-5">
           <a
@@ -446,17 +481,29 @@ export default function App() {
             </div>
 
             <div className="relative z-10 mx-auto flex w-full max-w-[1320px] flex-1 flex-col justify-center px-5 pb-16 pt-24 sm:py-24 lg:px-10 lg:py-20">
-              <p className="mb-6 inline-flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.18em] text-white/75">
+              <p
+                data-reveal=""
+                style={revealDelay(0)}
+                className="mb-6 inline-flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.18em] text-white/75"
+              >
                 <span className="h-px w-8 bg-white/45" />
                 Fundația HIPOLITECH ·{" "}
                 <span className="sm:hidden">UPB</span>
                 <span className="hidden sm:inline">Universitatea Politehnica din București</span>
               </p>
-              <h1 className="relative max-w-[680px] text-balance text-[40px] font-bold leading-[1.1] tracking-normal sm:text-6xl xl:text-[66px]">
+              <h1
+                data-reveal=""
+                style={revealDelay(55)}
+                className="relative max-w-[680px] text-balance text-[40px] font-bold leading-[1.1] tracking-normal sm:text-6xl xl:text-[66px]"
+              >
                 Un loc în cămin poate schimba un destin!
               </h1>
 
-              <div className="relative mt-6 max-w-[580px] space-y-4 text-pretty sm:mt-8">
+              <div
+                data-reveal=""
+                style={revealDelay(110)}
+                className="relative mt-6 max-w-[580px] space-y-4 text-pretty sm:mt-8"
+              >
                 <p className="text-lg leading-[1.6] text-white sm:text-xl">
                   Pentru mulți tineri veniți din alte orașe, primul an la Politehnică începe cu o
                   întrebare grea: unde voi locui?
@@ -471,14 +518,18 @@ export default function App() {
                 </p>
               </div>
 
-              <div className="relative mt-8 grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:items-center">
+              <div
+                data-reveal=""
+                style={revealDelay(165)}
+                className="relative mt-8 grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:items-center"
+              >
                 <a
                   href="/doneaza"
                   onClick={(event) => {
                     event.preventDefault();
                     navigate("/doneaza");
                   }}
-                  className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-lg bg-white px-4 text-[15px] font-bold text-[#0B2545] shadow-[0_12px_28px_-8px_rgba(2,8,23,0.45)] transition-[background-color,transform] duration-150 ease-out hover:bg-[#F7F6F2] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:scale-[0.97] sm:pe-6 sm:ps-7"
+                  className="pressable inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-lg bg-white px-4 text-[15px] font-bold text-[#0B2545] shadow-[0_12px_28px_-8px_rgba(2,8,23,0.45)] hover:bg-[#F7F6F2] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:pe-6 sm:ps-7"
                 >
                   Donează acum <ArrowRightIcon />
                 </a>
@@ -488,7 +539,7 @@ export default function App() {
                     event.preventDefault();
                     navigate("/voluntari");
                   }}
-                  className="inline-flex min-h-12 cursor-pointer items-center justify-center whitespace-nowrap rounded-lg border border-white/45 bg-[#0B2545]/45 px-4 text-[15px] font-bold text-white backdrop-blur-[2px] transition-[background-color,border-color,transform] duration-150 ease-out hover:border-white hover:bg-[#0B2545]/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:scale-[0.97] sm:px-7"
+                  className="pressable inline-flex min-h-12 cursor-pointer items-center justify-center whitespace-nowrap rounded-lg border border-white/45 bg-[#0B2545]/45 px-4 text-[15px] font-bold text-white backdrop-blur-[2px] hover:border-white hover:bg-[#0B2545]/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:px-7"
                 >
                   Devino voluntar
                 </a>
@@ -505,7 +556,7 @@ export default function App() {
               className="scroll-mt-20 border-b border-[#E2E8F0] bg-[#F7F6F2] px-5 pb-16 pt-24 lg:px-10 lg:pb-24 lg:pt-28"
             >
               <div className="mx-auto grid max-w-[1240px] gap-10 lg:grid-cols-[42fr_58fr] lg:gap-16 xl:gap-20">
-                <div className="lg:pt-6">
+                <div data-reveal="" style={revealDelay(0)} className="lg:pt-6">
                   <p className="section-kicker">Contribuție directă</p>
                   <h2 className="section-title">Vezi cum contează contribuția ta</h2>
                   <p className="section-subtitle">
@@ -536,8 +587,8 @@ export default function App() {
                 </div>
 
                 {/* Donation & payment card */}
-                <div className="lg:self-start">
-                  <div className="rounded-[22px] border border-[#E2E8F0] bg-white p-5 text-[#0F172A] shadow-[0_24px_48px_-28px_rgba(11,37,69,0.35)] sm:p-7">
+                <div data-reveal="" style={revealDelay(70)} className="lg:self-start">
+                  <div className="overflow-hidden rounded-[22px] border border-[#E2E8F0] bg-white p-5 text-[#0F172A] shadow-[0_24px_48px_-28px_rgba(11,37,69,0.35)] sm:p-7">
                     <div className="grid grid-cols-2 rounded-xl bg-[#F1F5F9] p-1">
                       <button
                         type="button"
@@ -578,7 +629,7 @@ export default function App() {
                               key={item.month}
                               onClick={() => setMonth(index)}
                               aria-pressed={active}
-                              className="group cursor-pointer text-left"
+                              className="pressable group cursor-pointer text-left"
                             >
                               <span
                                 className={`block h-1.5 transition-colors ${
@@ -641,21 +692,28 @@ export default function App() {
                       </div>
 
                       <div className="relative mt-12">
+                        {/* Compositor-only transform pill positioning (zero layout reflow) */}
                         <div
-                          className="absolute bottom-[30px] z-10 -translate-x-1/2 transition-[left] duration-300"
-                          style={{ left: `${pillLeft}%` }}
+                          className="bar-transform pointer-events-none absolute inset-x-0 bottom-[30px] z-10"
+                          style={{ transform: `translateX(${pillLeft}%)` }}
                         >
-                          <div className="whitespace-nowrap rounded-full bg-[#F59E0B] px-3 py-1.5 text-xs font-extrabold tabular-nums text-[#0B2545] shadow-[0_6px_16px_rgba(245,158,11,0.4)]">
-                            +{formatLei(totalContribution)} lei contribuția ta
+                          <div className="inline-block -translate-x-1/2">
+                            <div className="whitespace-nowrap rounded-full bg-[#F59E0B] px-3 py-1.5 text-xs font-extrabold tabular-nums text-[#0B2545] shadow-[0_6px_16px_rgba(245,158,11,0.4)]">
+                              +{formatLei(totalContribution)} lei contribuția ta
+                            </div>
+                            <div className="mx-auto -mt-1 size-2.5 rotate-45 bg-[#F59E0B]" />
                           </div>
-                          <div className="mx-auto -mt-1 size-2.5 rotate-45 bg-[#F59E0B]" />
                         </div>
                         <div className="flex h-[18px] overflow-hidden rounded-full bg-[#E2E8F0] shadow-[inset_0_1px_2px_rgba(15,23,42,0.08)]">
-                          <div className="h-full bg-[#0B3B6E]" style={{ width: "62%" }} />
-                          <div
-                            className="bar-stripes h-full border-l-2 border-white bg-[#F59E0B] transition-[width] duration-300"
-                            style={{ width: `${addedPercent}%` }}
-                          />
+                          <div className="h-full w-[62%] shrink-0 bg-[#0B3B6E]" />
+                          <div className="relative h-full flex-1 overflow-hidden">
+                            <div
+                              className="bar-stripes bar-transform absolute inset-0 border-l-2 border-white bg-[#F59E0B]"
+                              style={{
+                                transform: `translateX(${(addedPercent / 38) * 100 - 100}%)`,
+                              }}
+                            />
+                          </div>
                         </div>
                         <div className="mt-1.5 flex justify-between text-[10px] font-semibold tabular-nums text-[#94A3B8]">
                           <span>0</span>
@@ -700,7 +758,7 @@ export default function App() {
                                 setAmount(value);
                                 setDonationConfirmed(false);
                               }}
-                              className={`h-11 cursor-pointer rounded-xl border text-[13px] font-extrabold tabular-nums transition ${
+                              className={`pressable h-11 cursor-pointer rounded-xl border text-[13px] font-extrabold tabular-nums ${
                                 amount === value
                                   ? "border-[#0B3B6E] bg-[#0B3B6E] text-white"
                                   : "border-[#E2E8F0] text-[#475569] hover:border-[#94A3B8]"
@@ -760,14 +818,14 @@ export default function App() {
                           setCheckoutOpen(true);
                           setDonationConfirmed(false);
                         }}
-                        className="mt-5 flex w-full cursor-pointer items-center justify-center rounded-xl bg-[#0B3B6E] px-5 py-3.5 text-center text-sm font-extrabold text-white shadow-[0_10px_24px_-6px_rgba(11,59,110,0.55)] transition hover:-translate-y-px hover:bg-[#0B2545]"
+                        className="pressable mt-5 flex w-full cursor-pointer items-center justify-center rounded-xl bg-[#0B3B6E] px-5 py-3.5 text-center text-sm font-extrabold text-white shadow-[0_10px_24px_-6px_rgba(11,59,110,0.55)] hover:bg-[#0B2545]"
                       >
                         Donează {formatLei(totalContribution)} lei →
                       </button>
                     ) : (
                       <form
                         onSubmit={handleCheckoutSubmit}
-                        className="mt-5 space-y-3.5 rounded-2xl border border-[#CBD5E1] bg-[#F8FAFC] p-4 sm:p-5"
+                        className="panel-enter mt-5 space-y-3.5 rounded-2xl border border-[#CBD5E1] bg-[#F8FAFC] p-4 sm:p-5"
                       >
                         <div className="flex items-center justify-between gap-2">
                           <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-[#0B3B6E]">
@@ -860,7 +918,7 @@ export default function App() {
 
                         <button
                           type="submit"
-                          className="flex w-full cursor-pointer items-center justify-center rounded-xl bg-[#0B3B6E] px-5 py-3.5 text-center text-sm font-extrabold text-white shadow-[0_10px_24px_-6px_rgba(11,59,110,0.55)] transition hover:-translate-y-px hover:bg-[#0B2545]"
+                          className="pressable flex w-full cursor-pointer items-center justify-center rounded-xl bg-[#0B3B6E] px-5 py-3.5 text-center text-sm font-extrabold text-white shadow-[0_10px_24px_-6px_rgba(11,59,110,0.55)] hover:bg-[#0B2545]"
                         >
                           {paymentMethod === "card"
                             ? `Plătește ${formatLei(totalContribution)} lei`
@@ -870,7 +928,7 @@ export default function App() {
                     )}
 
                     {donationConfirmed && (
-                      <div className="mt-4 flex items-center gap-2 rounded-xl border border-[#BBF7D0] bg-[#F0FDF4] px-4 py-3 text-sm font-semibold text-[#166534]">
+                      <div className="panel-enter mt-4 flex items-center gap-2 rounded-xl border border-[#BBF7D0] bg-[#F0FDF4] px-4 py-3 text-sm font-semibold text-[#166534]">
                         <CheckIcon />
                         Îți mulțumim! Contribuția ta de {formatLei(totalContribution)} lei a fost
                         înregistrată, iar confirmarea a fost trimisă pe email.
@@ -890,7 +948,7 @@ export default function App() {
             <section id="capsula" className="scroll-mt-20 bg-[#F7F6F2] px-5 py-20 lg:px-10 lg:py-28">
               <div className="mx-auto max-w-[1240px]">
                 <div className="grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20">
-                  <div>
+                  <div data-reveal="" style={revealDelay(0)}>
                     <p className="section-kicker">Un mesaj care rămâne</p>
                     <h2 className="section-title">Capsula Timpului pentru Prima Generație</h2>
                     <p className="section-subtitle">
@@ -933,7 +991,7 @@ export default function App() {
                     </div>
                   </div>
 
-                  <div className="lg:pt-6">
+                  <div data-reveal="" style={revealDelay(80)} className="lg:pt-6">
                     <div className="relative overflow-hidden rounded-[24px] bg-[linear-gradient(150deg,#0F4A85_0%,#0B3B6E_42%,#0B2545_100%)] p-7 text-[#FFF7E8] shadow-[0_34px_60px_-18px_rgba(11,37,69,0.55)] sm:p-10">
                       <div
                         aria-hidden="true"
@@ -1032,6 +1090,8 @@ export default function App() {
                     ].map(([stat, description], index) => (
                       <div
                         key={stat}
+                        data-reveal=""
+                        style={revealDelay(index * 60)}
                         className={`py-9 md:px-8 lg:px-10 ${index > 0 ? "border-t border-[#CBD5E1] md:border-l md:border-t-0" : "md:pl-0"}`}
                       >
                         <p className="text-[11px] font-bold tabular-nums text-[#94A3B8]">
@@ -1048,7 +1108,11 @@ export default function App() {
                   </div>
 
                   {/* 6-month structured roadmap table */}
-                  <div className="mt-10 overflow-hidden rounded-[22px] border border-[#E2E8F0] bg-white shadow-[0_24px_48px_-28px_rgba(11,37,69,0.22)]">
+                  <div
+                    data-reveal=""
+                    style={revealDelay(100)}
+                    className="mt-10 overflow-hidden rounded-[22px] border border-[#E2E8F0] bg-white shadow-[0_24px_48px_-28px_rgba(11,37,69,0.22)]"
+                  >
                     <div className="overflow-x-auto">
                       <table className="w-full min-w-[780px] border-collapse text-left text-sm">
                         <thead>
@@ -1143,7 +1207,7 @@ export default function App() {
           <>
             <section className="flex-1 bg-[#F7F6F2] px-5 pb-16 pt-24 lg:px-10 lg:pb-24 lg:pt-28">
               <div className="mx-auto grid max-w-[1240px] gap-10 lg:grid-cols-[42fr_58fr] lg:gap-16 xl:gap-20">
-                <div className="lg:pt-6">
+                <div data-reveal="" style={revealDelay(0)} className="lg:pt-6">
                   <p className="section-kicker">Comunitatea UPB</p>
                   <h1 className="section-title">Devino voluntar în campanie</h1>
                   <p className="section-subtitle">
@@ -1153,7 +1217,7 @@ export default function App() {
                   </p>
                 </div>
 
-                <div className="lg:self-start">
+                <div data-reveal="" style={revealDelay(70)} className="lg:self-start">
                   <div className="rounded-[22px] border border-[#E2E8F0] bg-white p-6 text-[#0F172A] shadow-[0_24px_48px_-28px_rgba(11,37,69,0.35)] sm:p-8">
                     <form className="space-y-5" onSubmit={handleVolunteerSubmit}>
                       <label className="block">
@@ -1244,7 +1308,7 @@ export default function App() {
                     </form>
 
                     {volunteerSent && (
-                      <div className="mt-5 flex flex-col gap-3 rounded-xl border border-[#BBF7D0] bg-[#F0FDF4] px-4 py-3.5 text-sm font-semibold text-[#166534] sm:flex-row sm:items-center sm:justify-between">
+                      <div className="panel-enter mt-5 flex flex-col gap-3 rounded-xl border border-[#BBF7D0] bg-[#F0FDF4] px-4 py-3.5 text-sm font-semibold text-[#166534] sm:flex-row sm:items-center sm:justify-between">
                         <div className="flex items-center gap-2">
                           <CheckIcon />
                           <span>
@@ -1272,12 +1336,14 @@ export default function App() {
           <>
             <section className="flex-1 bg-[#F7F6F2] px-5 pb-20 pt-24 lg:px-10 lg:pb-28 lg:pt-28">
               <div className="mx-auto max-w-[960px]">
-                <p className="section-kicker">Întrebări frecvente</p>
-                <h1 className="section-title">Tot ce trebuie să știi despre campanie</h1>
-                <p className="section-subtitle">
-                  Răspunsuri clare despre cum funcționează contribuțiile pe Chip In, etapele
-                  proiectului și implicarea comunității UPB.
-                </p>
+                <div data-reveal="" style={revealDelay(0)}>
+                  <p className="section-kicker">Întrebări frecvente</p>
+                  <h1 className="section-title">Tot ce trebuie să știi despre campanie</h1>
+                  <p className="section-subtitle">
+                    Răspunsuri clare despre cum funcționează contribuțiile pe Chip In, etapele
+                    proiectului și implicarea comunității UPB.
+                  </p>
+                </div>
 
                 <div className="mt-10 space-y-3">
                   {FAQ_ITEMS.map((item, index) => {
@@ -1285,13 +1351,15 @@ export default function App() {
                     return (
                       <div
                         key={item.question}
+                        data-reveal=""
+                        style={revealDelay(Math.min(index * 45, 270))}
                         className="overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white transition-colors"
                       >
                         <button
                           type="button"
                           onClick={() => setOpenFaq(isOpen ? null : index)}
                           aria-expanded={isOpen}
-                          className="flex w-full cursor-pointer items-center justify-between gap-4 px-5 py-5 text-left sm:px-7"
+                          className="pressable flex w-full cursor-pointer items-center justify-between gap-4 px-5 py-5 text-left sm:px-7"
                         >
                           <span className="flex items-baseline gap-3.5 text-[15px] font-extrabold leading-snug text-[#0F172A] sm:text-base">
                             <span className="text-xs font-extrabold tabular-nums text-[#0B3B6E]">
@@ -1301,19 +1369,25 @@ export default function App() {
                           </span>
                           <ChevronDownIcon open={isOpen} />
                         </button>
-                        {isOpen && (
-                          <div className="border-t border-[#F1F5F9] px-5 pb-6 pt-4 sm:px-7 sm:pl-[56px]">
-                            <p className="text-sm leading-7 text-[#475569] sm:text-[15px]">
-                              {item.answer}
-                            </p>
+                        <div className="accordion-panel" data-open={isOpen ? "true" : "false"}>
+                          <div className="accordion-inner">
+                            <div className="border-t border-[#F1F5F9] px-5 pb-6 pt-4 sm:px-7 sm:pl-[56px]">
+                              <p className="text-sm leading-7 text-[#475569] sm:text-[15px]">
+                                {item.answer}
+                              </p>
+                            </div>
                           </div>
-                        )}
+                        </div>
                       </div>
                     );
                   })}
                 </div>
 
-                <div className="mt-10 flex flex-col items-start justify-between gap-4 rounded-2xl border border-[#E2E8F0] bg-white p-6 sm:flex-row sm:items-center sm:p-7">
+                <div
+                  data-reveal=""
+                  style={revealDelay(80)}
+                  className="mt-10 flex flex-col items-start justify-between gap-4 rounded-2xl border border-[#E2E8F0] bg-white p-6 sm:flex-row sm:items-center sm:p-7"
+                >
                   <div>
                     <p className="text-base font-extrabold text-[#0B2545]">
                       Vrei să susții direct noul cămin UPB?
@@ -1329,7 +1403,7 @@ export default function App() {
                         event.preventDefault();
                         navigate("/doneaza");
                       }}
-                      className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-xl bg-[#0B3B6E] px-5 text-sm font-extrabold text-white transition hover:bg-[#0B2545]"
+                      className="pressable inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-xl bg-[#0B3B6E] px-5 text-sm font-extrabold text-white hover:bg-[#0B2545]"
                     >
                       Donează acum <ArrowRightIcon />
                     </a>
@@ -1355,17 +1429,19 @@ export default function App() {
           <>
             <section className="flex-1 bg-[#F7F6F2] px-5 pb-20 pt-24 lg:px-10 lg:pb-28 lg:pt-28">
               <div className="mx-auto max-w-[1100px]">
-                <p className="section-kicker">Despre noi</p>
-                <h1 className="section-title">
-                  Misiunea noastră: „Un loc în cămin poate schimba un destin!”
-                </h1>
-                <p className="section-subtitle max-w-[780px] text-[17px]">
-                  Chip In este platforma dedicată campaniei de strângere de fonduri pentru
-                  construirea unui nou cămin studențesc al Universității Politehnica din București,
-                  inițiată de Fundația HIPOLITECH. Proiectul este gândit prioritar pentru studenții
-                  cu rezultate academice deosebite și pentru cei care au nevoie de sprijin
-                  financiar, urmărind să le ofere spații moderne de locuire, studiu și comunitate.
-                </p>
+                <div data-reveal="" style={revealDelay(0)}>
+                  <p className="section-kicker">Despre noi</p>
+                  <h1 className="section-title">
+                    Misiunea noastră: „Un loc în cămin poate schimba un destin!”
+                  </h1>
+                  <p className="section-subtitle max-w-[780px] text-[17px]">
+                    Chip In este platforma dedicată campaniei de strângere de fonduri pentru
+                    construirea unui nou cămin studențesc al Universității Politehnica din București,
+                    inițiată de Fundația HIPOLITECH. Proiectul este gândit prioritar pentru studenții
+                    cu rezultate academice deosebite și pentru cei care au nevoie de sprijin
+                    financiar, urmărind să le ofere spații moderne de locuire, studiu și comunitate.
+                  </p>
+                </div>
 
                 {/* Key milestones strip matching the design system */}
                 <div className="mt-12 grid border-y border-[#CBD5E1] md:grid-cols-3">
@@ -1385,6 +1461,8 @@ export default function App() {
                   ].map(([stat, description], index) => (
                     <div
                       key={stat}
+                      data-reveal=""
+                      style={revealDelay(index * 60)}
                       className={`py-8 md:px-7 ${index > 0 ? "border-t border-[#CBD5E1] md:border-l md:border-t-0" : "md:pl-0"}`}
                     >
                       <p className="text-[11px] font-bold tabular-nums text-[#94A3B8]">
@@ -1400,7 +1478,11 @@ export default function App() {
 
                 {/* Editorial story cards */}
                 <div className="mt-12 grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-                  <article className="rounded-[22px] border border-[#E2E8F0] bg-white p-6 shadow-[0_24px_48px_-28px_rgba(11,37,69,0.2)] sm:p-8">
+                  <article
+                    data-reveal=""
+                    style={revealDelay(0)}
+                    className="rounded-[22px] border border-[#E2E8F0] bg-white p-6 shadow-[0_24px_48px_-28px_rgba(11,37,69,0.2)] sm:p-8"
+                  >
                     <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-[#0B3B6E]">
                       01 · De ce am creat această platformă
                     </p>
@@ -1432,7 +1514,11 @@ export default function App() {
                     </div>
                   </article>
 
-                  <article className="flex flex-col justify-between rounded-[22px] border border-[#E2E8F0] bg-white p-6 shadow-[0_24px_48px_-28px_rgba(11,37,69,0.2)] sm:p-8">
+                  <article
+                    data-reveal=""
+                    style={revealDelay(70)}
+                    className="flex flex-col justify-between rounded-[22px] border border-[#E2E8F0] bg-white p-6 shadow-[0_24px_48px_-28px_rgba(11,37,69,0.2)] sm:p-8"
+                  >
                     <div>
                       <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-[#0B3B6E]">
                         02 · Transparență și responsabilitate
@@ -1455,7 +1541,7 @@ export default function App() {
                           event.preventDefault();
                           navigate("/doneaza");
                         }}
-                        className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-xl bg-[#0B3B6E] px-5 text-sm font-extrabold text-white transition hover:bg-[#0B2545]"
+                        className="pressable inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-xl bg-[#0B3B6E] px-5 text-sm font-extrabold text-white hover:bg-[#0B2545]"
                       >
                         Donează acum <ArrowRightIcon />
                       </a>

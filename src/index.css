@@ -6,6 +6,11 @@
   --font-mono: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
 }
 
+:root {
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
@@ -35,10 +40,15 @@
 @layer components {
   .nav-link {
     position: relative;
-    transition: color 160ms ease;
+    transition:
+      color 160ms ease,
+      transform 120ms var(--ease-out);
   }
 
-  .nav-link:hover,
+  .nav-link:active {
+    transform: scale(0.96);
+  }
+
   .nav-link[data-active="true"] {
     color: #ffffff;
   }
@@ -52,12 +62,34 @@
     content: "";
     background: #f59e0b;
     transform: scaleX(0);
-    transition: transform 160ms ease;
+    transition: transform 180ms var(--ease-out);
   }
 
-  .nav-link:hover::after,
   .nav-link[data-active="true"]::after {
     transform: scaleX(1);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .nav-link:hover {
+      color: #ffffff;
+    }
+
+    .nav-link:hover::after {
+      transform: scaleX(1);
+    }
+  }
+
+  .pressable {
+    transition:
+      transform 140ms var(--ease-out),
+      background-color 160ms ease,
+      border-color 160ms ease,
+      color 160ms ease,
+      opacity 160ms ease;
+  }
+
+  .pressable:active {
+    transform: scale(0.97);
   }
 
   .field-label {
@@ -126,13 +158,12 @@
     font-size: 0.875rem;
     font-weight: 800;
     transition:
-      background 160ms ease,
-      transform 160ms ease;
+      background-color 160ms ease,
+      transform 140ms var(--ease-out);
   }
 
-  .primary-button:hover {
-    background: #082e56;
-    transform: translateY(-1px);
+  .primary-button:active {
+    transform: scale(0.97);
   }
 
   .secondary-button {
@@ -145,13 +176,85 @@
     font-weight: 800;
     transition:
       border-color 160ms ease,
-      background 160ms ease;
+      background-color 160ms ease,
+      transform 140ms var(--ease-out);
   }
 
-  .secondary-button:hover {
-    border-color: #0b3b6e;
-    background: #eff6ff;
+  .secondary-button:active {
+    transform: scale(0.97);
   }
+
+  @media (hover: hover) and (pointer: fine) {
+    .primary-button:hover {
+      background: #082e56;
+      transform: translateY(-1px);
+    }
+
+    .secondary-button:hover {
+      border-color: #0b3b6e;
+      background: #eff6ff;
+      transform: translateY(-1px);
+    }
+  }
+}
+
+/* Compositor-only scroll reveal (transform + opacity) */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 360ms var(--ease-out),
+    transform 360ms var(--ease-out);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+[data-reveal="visible"] {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Subtle entrance for dynamically revealed panels & confirmations */
+@keyframes panelEnter {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.panel-enter {
+  animation: panelEnter 220ms var(--ease-out) both;
+}
+
+/* 60fps cross-browser FAQ accordion (CSS Grid 0fr -> 1fr) */
+.accordion-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 220ms var(--ease-out);
+}
+
+.accordion-panel[data-open="true"] {
+  grid-template-rows: 1fr;
+}
+
+.accordion-panel > .accordion-inner {
+  min-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 180ms var(--ease-out);
+}
+
+.accordion-panel[data-open="true"] > .accordion-inner {
+  opacity: 1;
+}
+
+/* Compositor-only bar & floating pill movement */
+.bar-transform {
+  transition: transform 280ms var(--ease-out);
 }
 
 .architectural-grid {
@@ -203,14 +306,32 @@
   color: #0b3b6e;
 }
 
+/* Reduced motion: keep gentle opacity transitions, drop position/scale movement */
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
 
-  *,
-  *::before,
-  *::after {
-    transition-duration: 0.01ms !important;
+  [data-reveal] {
+    transform: none;
+    transition: opacity 180ms ease;
+    transition-delay: 0ms;
+  }
+
+  .panel-enter {
+    animation: none;
+  }
+
+  .accordion-panel {
+    transition-duration: 0.01ms;
+  }
+
+  .pressable:active,
+  .primary-button:hover,
+  .primary-button:active,
+  .secondary-button:hover,
+  .secondary-button:active,
+  .nav-link:active {
+    transform: none;
   }
 }
