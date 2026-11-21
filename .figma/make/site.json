@@ -1,9 +1,9 @@
 {
   "title": "chip in — Un loc în cămin poate schimba un destin!",
   "language": "ro",
-  "description": "Un loc în cămin poate schimba un destin! Campania Fundației HIPOLITECH pentru noul cămin al Universității Politehnica din București.",
+  "description": "Chip In este platforma campaniei de strângere de fonduri pentru noul cămin studențesc al Universității Politehnica din București, inițiată de Fundația HIPOLITECH.",
   "robots": {
-    "index": false
+    "index": true
   },
   "accessibility": {
     "addBypassLinks": false,

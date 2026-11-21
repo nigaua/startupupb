@@ -5,7 +5,7 @@ type PageRoute = "/" | "/doneaza" | "/voluntari" | "/faq" | "/despre-noi";
 const monthlyTargets = [20000, 30000, 40000, 45000, 55000, 60000];
 const quickAmounts = { person: [50, 100, 250], company: [500, 1000, 2500] };
 const DEFAULT_MESSAGE = "Mult succes în prima sesiune! Să vă fie acest loc un început bun.";
-const DEFAULT_NAME = "Un susținător HIPOLITECH";
+const DEFAULT_NAME = "Un susținător Chip In";
 
 const UPB_FACULTIES = [
   "Automatică și Calculatoare",
@@ -23,6 +23,49 @@ const UPB_FACULTIES = [
   "Științe Aplicate",
   "Inginerie Medicală",
   "Antreprenoriat, Ingineria și Managementul Afacerilor",
+];
+
+const FAQ_ITEMS = [
+  {
+    question: "Unde ajung concret fondurile strânse prin campanie?",
+    answer:
+      "Fondurile susțin direct realizarea noului cămin studențesc al POLITEHNICII București prin Fundația HIPOLITECH. Prioritatea imediată o reprezintă prima etapă a proiectului: proiectare, avize și autorizații (estimată la 1.250.000 lei), ca parte din investiția totală estimată la 100.000.000 lei.",
+  },
+  {
+    question: "Cum funcționează contribuția mea și cum o pot finaliza?",
+    answer:
+      "În pagina Donează alegi dacă susții proiectul ca persoană fizică sau ca societate, introduci suma dorită (o singură dată sau lunar, pe parcursul celor 6 luni) și vezi imediat cum ajută la atingerea obiectivului lunii curente. Plata și finalizarea contribuției se fac direct pe platforma Chip In, prin card bancar sau transfer bancar.",
+  },
+  {
+    question: "Cine va beneficia de noul cămin?",
+    answer:
+      "Căminul vizează prioritar studenții cu performanțe academice deosebite și studenții cu dificultăți financiare care au nevoie reală de sprijin pentru a-și continua studiile.",
+  },
+  {
+    question: "Dacă donez, copilul meu primește prioritate sau un loc rezervat în cămin?",
+    answer:
+      "Nu. Contribuțiile reprezintă un gest de solidaritate față de comunitatea academică și nu conferă drepturi de cazare, rezervări sau prioritate la repartizare.",
+  },
+  {
+    question: "O anumită sumă donată acoperă costul unei camere sau al unui loc de cazare?",
+    answer:
+      "Nu. Proiectul nu echivalează sumele donate cu o cameră sau un loc anume; fiecare contribuție se adună în obiectivul comun de finanțare al noului cămin.",
+  },
+  {
+    question: "Reprezint o companie. Putem susține proiectul printr-un contract de sponsorizare?",
+    answer:
+      "Da. Companiile și partenerii pot selecta opțiunea „Societate / Companie” în pagina Donează pentru a stabili suma și a finaliza contribuția sau contractul de sponsorizare direct prin Chip In, alături de echipa Fundației HIPOLITECH. Condițiile contractuale și facilitățile fiscale se stabilesc conform legislației aplicabile.",
+  },
+  {
+    question: "Ce este „Capsula Timpului pentru Prima Generație”?",
+    answer:
+      "Este spațiul dedicat comunității noastre, unde părinții, susținătorii și partenerii pot lăsa un mesaj scurt de încurajare pentru primii studenți care vor locui în noul cămin. După completare, primești pe loc un card digital de susținător pe care îl poți distribui mai departe familiei sau colegilor.",
+  },
+  {
+    question: "Sunt student la POLITEHNICĂ și vreau să mă implic. Cum pot deveni voluntar?",
+    answer:
+      "Poți completa formularul din pagina Voluntari. Voluntarii ne ajută să promovăm campania în campus și la evenimentele universității, informând comunitatea și ghidând persoanele interesate să contribuie direct pe platforma Chip In.",
+  },
 ];
 
 const formatLei = (value: number) =>
@@ -69,15 +112,55 @@ function CheckIcon() {
   );
 }
 
+function ChevronDownIcon({ open }: { open: boolean }) {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 20 20"
+      className={`size-5 shrink-0 text-[#0B3B6E] transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+      fill="none"
+    >
+      <path
+        d="m5.5 7.75 4.5 4.5 4.5-4.5"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function SiteFooter() {
+  return (
+    <footer className="blueprint px-5 py-10 text-white lg:px-10">
+      <div className="mx-auto flex max-w-[1240px] flex-col gap-4 text-xs leading-5 text-[#94A3B8] sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3">
+          <img src="/logo-chipin.png" alt="chip in" className="h-7 w-auto" />
+          <p>Fundația HIPOLITECH · Universitatea Politehnica din București</p>
+        </div>
+        <p>Un loc în cămin poate schimba un destin!</p>
+      </div>
+    </footer>
+  );
+}
+
 export default function App() {
   const [route, setRoute] = useState<PageRoute>(() => normalizeRoute(window.location.pathname));
 
-  // Donation simulator & Capsula state
+  // Donation & checkout state
   const [supporterType, setSupporterType] = useState<"person" | "company">("person");
   const [month, setMonth] = useState(0);
   const [amount, setAmount] = useState(100);
   const [frequency, setFrequency] = useState<"once" | "monthly">("monthly");
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<"card" | "transfer">("card");
+  const [donorName, setDonorName] = useState("");
+  const [donorEmail, setDonorEmail] = useState("");
+  const [companyCui, setCompanyCui] = useState("");
   const [donationConfirmed, setDonationConfirmed] = useState(false);
+
+  // Capsula Timpului state
   const [name, setName] = useState("");
   const [message, setMessage] = useState("");
   const [cardName, setCardName] = useState(DEFAULT_NAME);
@@ -91,6 +174,9 @@ export default function App() {
   const [volunteerFaculty, setVolunteerFaculty] = useState("");
   const [volunteerReason, setVolunteerReason] = useState("");
   const [volunteerSent, setVolunteerSent] = useState(false);
+
+  // FAQ accordion state
+  const [openFaq, setOpenFaq] = useState<number | null>(0);
 
   useEffect(() => {
     const onPopState = () => {
@@ -125,6 +211,11 @@ export default function App() {
     setDonationConfirmed(false);
   };
 
+  const handleCheckoutSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setDonationConfirmed(true);
+  };
+
   const generateCard = () => {
     setCardName(name.trim() || DEFAULT_NAME);
     setCardMessage(message.trim() || DEFAULT_MESSAGE);
@@ -141,7 +232,7 @@ export default function App() {
   };
 
   const shareWhatsApp = () => {
-    const text = encodeURIComponent(`„${cardMessage}” — ${cardName}\nCampanie HIPOLITECH`);
+    const text = encodeURIComponent(`„${cardMessage}” — ${cardName}\nCampanie Chip In × UPB`);
     window.open(`https://wa.me/?text=${text}`, "_blank", "noopener,noreferrer");
   };
 
@@ -160,7 +251,7 @@ export default function App() {
   };
 
   const segment = (active: boolean) =>
-    `rounded-[9px] px-3 py-2 text-[13px] font-bold transition ${
+    `cursor-pointer rounded-[9px] px-3 py-2 text-[13px] font-bold transition ${
       active
         ? "bg-white text-[#0B3B6E] shadow-[0_1px_3px_rgba(15,23,42,0.12)]"
         : "text-[#64748B] hover:text-[#0F172A]"
@@ -333,18 +424,18 @@ export default function App() {
 
         {route === "/doneaza" && (
           <>
-            {/* SIMULATOR — warm paper */}
+            {/* CONTRIBUȚIE & SIMULATOR — warm paper */}
             <section
               id="simulator"
               className="scroll-mt-20 border-b border-[#E2E8F0] bg-[#F7F6F2] px-5 pb-16 pt-24 lg:px-10 lg:pb-24 lg:pt-28"
             >
               <div className="mx-auto grid max-w-[1240px] gap-10 lg:grid-cols-[42fr_58fr] lg:gap-16 xl:gap-20">
                 <div className="lg:pt-6">
-                  <p className="section-kicker">Simulator</p>
+                  <p className="section-kicker">Contribuție directă</p>
                   <h2 className="section-title">Vezi cum contează contribuția ta</h2>
                   <p className="section-subtitle">
-                    Obiectivul simulat este de 250.000 de lei în 6 luni, parte din prima etapă a
-                    proiectului: proiectare, avize și autorizații (1.250.000 de lei).
+                    Obiectivul comunității este de 250.000 de lei în 6 luni, direcționat către
+                    prima etapă a proiectului: proiectare, avize și autorizații (1.250.000 de lei).
                   </p>
                   <div className="mt-8 grid max-w-[500px] grid-cols-2 border-y border-[#E2E8F0]">
                     {[
@@ -366,7 +457,7 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Simulator card */}
+                {/* Donation & payment card */}
                 <div className="lg:self-start">
                   <div className="rounded-[22px] border border-[#E2E8F0] bg-white p-5 text-[#0F172A] shadow-[0_24px_48px_-28px_rgba(11,37,69,0.35)] sm:p-7">
                     <div className="grid grid-cols-2 rounded-xl bg-[#F1F5F9] p-1">
@@ -409,7 +500,7 @@ export default function App() {
                               key={index}
                               onClick={() => setMonth(index)}
                               aria-pressed={active}
-                              className="group text-left"
+                              className="group cursor-pointer text-left"
                             >
                               <span
                                 className={`block h-1.5 transition-colors ${
@@ -454,7 +545,7 @@ export default function App() {
                           <p className="text-2xl font-extrabold tabular-nums tracking-[-0.01em] text-[#0F172A]">
                             {formatLei(existing)} lei{" "}
                             <span className="text-sm font-semibold tracking-normal text-[#64748B]">
-                              strânși (simulat)
+                              strânși
                             </span>
                           </p>
                           <p className="mt-0.5 text-xs font-semibold text-[#64748B]">
@@ -490,14 +581,22 @@ export default function App() {
                       </div>
 
                       <p className="mt-2 text-[13px] font-semibold leading-5 text-[#0F172A]">
-                        Cu această contribuție, mai sunt necesari doar{" "}
-                        <span className="rounded bg-[#FEF3C7] px-1 font-extrabold tabular-nums text-[#B45309]">
-                          {supportersNeeded} susținători
-                        </span>{" "}
-                        pentru a atinge ținta lunii {month + 1}.
+                        {supportersNeeded === 0 ? (
+                          <>Contribuția ta acoperă integral ținta lunii {month + 1}.</>
+                        ) : (
+                          <>
+                            Cu această contribuție, mai sunt necesari doar{" "}
+                            <span className="rounded bg-[#FEF3C7] px-1 font-extrabold tabular-nums text-[#B45309]">
+                              {supportersNeeded}{" "}
+                              {supportersNeeded === 1 ? "susținător" : "susținători"}
+                            </span>{" "}
+                            pentru a atinge ținta lunii {month + 1}.
+                          </>
+                        )}
                       </p>
                       <p className="mt-2.5 border-t border-[#E2E8F0] pt-2.5 text-[11px] leading-4 text-[#64748B]">
-                        Contribuie la Etapa 1 (proiectare, avize, autorizații): 1.250.000 lei.
+                        Contribuie direct la Etapa 1 (proiectare, avize, autorizații): 1.250.000
+                        lei.
                       </p>
                     </div>
 
@@ -514,7 +613,7 @@ export default function App() {
                                 setAmount(value);
                                 setDonationConfirmed(false);
                               }}
-                              className={`h-11 rounded-xl border text-[13px] font-extrabold tabular-nums transition ${
+                              className={`h-11 cursor-pointer rounded-xl border text-[13px] font-extrabold tabular-nums transition ${
                                 amount === value
                                   ? "border-[#0B3B6E] bg-[#0B3B6E] text-white"
                                   : "border-[#E2E8F0] text-[#475569] hover:border-[#94A3B8]"
@@ -526,7 +625,7 @@ export default function App() {
                         </div>
                       </div>
                       <label>
-                        <span className="field-label truncate">Sumă demonstrativă (lei)</span>
+                        <span className="field-label truncate">Altă sumă (lei)</span>
                         <input
                           className="field-input min-h-11 py-2 text-base font-extrabold tabular-nums"
                           type="number"
@@ -567,24 +666,133 @@ export default function App() {
                       </button>
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={() => setDonationConfirmed(true)}
-                      className="mt-5 flex w-full items-center justify-center rounded-xl bg-[#0B3B6E] px-5 py-3.5 text-center text-sm font-extrabold text-white shadow-[0_10px_24px_-6px_rgba(11,59,110,0.55)] transition hover:-translate-y-px hover:bg-[#0B2545]"
-                    >
-                      Donează {formatLei(totalContribution)} lei →
-                    </button>
+                    {!checkoutOpen ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCheckoutOpen(true);
+                          setDonationConfirmed(false);
+                        }}
+                        className="mt-5 flex w-full cursor-pointer items-center justify-center rounded-xl bg-[#0B3B6E] px-5 py-3.5 text-center text-sm font-extrabold text-white shadow-[0_10px_24px_-6px_rgba(11,59,110,0.55)] transition hover:-translate-y-px hover:bg-[#0B2545]"
+                      >
+                        Donează {formatLei(totalContribution)} lei →
+                      </button>
+                    ) : (
+                      <form
+                        onSubmit={handleCheckoutSubmit}
+                        className="mt-5 space-y-3.5 rounded-2xl border border-[#CBD5E1] bg-[#F8FAFC] p-4 sm:p-5"
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="text-xs font-extrabold uppercase tracking-[0.12em] text-[#0B3B6E]">
+                            Finalizează plata pe Chip In
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setCheckoutOpen(false);
+                              setDonationConfirmed(false);
+                            }}
+                            className="cursor-pointer text-xs font-bold text-[#64748B] hover:text-[#0F172A]"
+                          >
+                            Modifică suma
+                          </button>
+                        </div>
+
+                        <div className="grid grid-cols-2 rounded-xl bg-[#E2E8F0]/70 p-1">
+                          <button
+                            type="button"
+                            onClick={() => setPaymentMethod("card")}
+                            className={segment(paymentMethod === "card")}
+                          >
+                            Card bancar
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setPaymentMethod("transfer")}
+                            className={segment(paymentMethod === "transfer")}
+                          >
+                            Transfer bancar
+                          </button>
+                        </div>
+
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          <label className="block">
+                            <span className="field-label">
+                              {supporterType === "company" ? "Denumire companie" : "Nume complet"}
+                            </span>
+                            <input
+                              required
+                              type="text"
+                              className="field-input min-h-11 py-2"
+                              value={donorName}
+                              onChange={(event) => setDonorName(event.target.value)}
+                              placeholder={
+                                supporterType === "company"
+                                  ? "Ex: Companie S.R.L."
+                                  : "Ex: Andrei Popescu"
+                              }
+                            />
+                          </label>
+                          <label className="block">
+                            <span className="field-label">Email confirmare</span>
+                            <input
+                              required
+                              type="email"
+                              className="field-input min-h-11 py-2"
+                              value={donorEmail}
+                              onChange={(event) => setDonorEmail(event.target.value)}
+                              placeholder="Ex: nume@exemplu.ro"
+                            />
+                          </label>
+                        </div>
+
+                        {supporterType === "company" && (
+                          <label className="block">
+                            <span className="field-label">CUI / Cod fiscal (pentru contract)</span>
+                            <input
+                              required
+                              type="text"
+                              className="field-input min-h-11 py-2 tabular-nums"
+                              value={companyCui}
+                              onChange={(event) => setCompanyCui(event.target.value)}
+                              placeholder="Ex: RO12345678"
+                            />
+                          </label>
+                        )}
+
+                        {paymentMethod === "transfer" && (
+                          <div className="rounded-xl border border-[#CBD5E1] bg-white px-3.5 py-3 text-xs leading-5 text-[#475569]">
+                            <p className="font-bold text-[#0B2545]">
+                              Beneficiar: Fundația HIPOLITECH · Chip In UPB
+                            </p>
+                            <p className="mt-1 tabular-nums">
+                              Detalii plată: <span className="font-semibold">Noul Cămin UPB</span>
+                            </p>
+                          </div>
+                        )}
+
+                        <button
+                          type="submit"
+                          className="flex w-full cursor-pointer items-center justify-center rounded-xl bg-[#0B3B6E] px-5 py-3.5 text-center text-sm font-extrabold text-white shadow-[0_10px_24px_-6px_rgba(11,59,110,0.55)] transition hover:-translate-y-px hover:bg-[#0B2545]"
+                        >
+                          {paymentMethod === "card"
+                            ? `Plătește ${formatLei(totalContribution)} lei`
+                            : `Confirmă transferul de ${formatLei(totalContribution)} lei`}
+                        </button>
+                      </form>
+                    )}
 
                     {donationConfirmed && (
                       <div className="mt-4 flex items-center gap-2 rounded-xl border border-[#BBF7D0] bg-[#F0FDF4] px-4 py-3 text-sm font-semibold text-[#166534]">
                         <CheckIcon />
-                        Contribuție demonstrativă de {formatLei(totalContribution)} lei înregistrată.
+                        Îți mulțumim! Contribuția ta de {formatLei(totalContribution)} lei a fost
+                        înregistrată, iar confirmarea a fost trimisă pe email.
                       </div>
                     )}
 
                     <p className="mt-2.5 text-center text-[11px] leading-4 text-[#64748B]">
-                      Simulare educațională. Contribuțiile susțin proiectul comun și nu oferă
-                      rezervări sau drepturi de cazare.
+                      Plățile se procesează direct pe Chip In. Contribuțiile susțin proiectul comun
+                      și nu oferă rezervări sau drepturi de cazare.
                     </p>
                   </div>
                 </div>
@@ -592,7 +800,7 @@ export default function App() {
             </section>
 
             {/* CAPSULA — warm off-white */}
-            <section id="capsula" className="scroll-mt-16 bg-[#F7F6F2] px-5 py-20 lg:px-10 lg:py-28">
+            <section id="capsula" className="scroll-mt-20 bg-[#F7F6F2] px-5 py-20 lg:px-10 lg:py-28">
               <div className="mx-auto max-w-[1240px]">
                 <div className="grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20">
                   <div>
@@ -605,7 +813,7 @@ export default function App() {
 
                     <div className="mt-10 rounded-2xl border border-[#E2E8F0] bg-white p-6 sm:p-7">
                       <label className="block">
-                        <span className="field-label">Nume / Inițiale (fictiv în demo)</span>
+                        <span className="field-label">Nume / Inițiale</span>
                         <input
                           className="field-input"
                           value={name}
@@ -628,8 +836,12 @@ export default function App() {
                           {message.length}/160
                         </span>
                       </label>
-                      <button type="button" onClick={generateCard} className="primary-button mt-3">
-                        Generează Cardul de Susținător (Demo)
+                      <button
+                        type="button"
+                        onClick={generateCard}
+                        className="primary-button mt-3 cursor-pointer"
+                      >
+                        Generează Cardul de Susținător
                       </button>
                     </div>
                   </div>
@@ -681,20 +893,28 @@ export default function App() {
                           <div>
                             <p className="text-sm font-bold">{cardName}</p>
                             <p className="mt-1 text-xs text-[#FFF7E8]/70">
-                              Susținător simbolic • Campanie HIPOLITECH (Demo)
+                              Susținător • Campanie Chip In × UPB
                             </p>
                           </div>
                           <p className="hidden text-[10px] font-bold uppercase tracking-[0.16em] text-[#F5D9A8]/70 sm:block">
-                            UPB · 2025
+                            UPB · 2026
                           </p>
                         </div>
                       </div>
                     </div>
                     <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                      <button type="button" onClick={shareWhatsApp} className="secondary-button">
+                      <button
+                        type="button"
+                        onClick={shareWhatsApp}
+                        className="secondary-button cursor-pointer"
+                      >
                         Distribuie pe WhatsApp
                       </button>
-                      <button type="button" onClick={copyMessage} className="secondary-button">
+                      <button
+                        type="button"
+                        onClick={copyMessage}
+                        className="secondary-button cursor-pointer"
+                      >
                         {copied ? "Mesaj copiat" : "Copiază mesajul"}
                       </button>
                     </div>
@@ -712,11 +932,11 @@ export default function App() {
                     {[
                       [
                         "1.250.000 lei",
-                        "Etapa 1: proiectare, avize și autorizații (estimare Fundație).",
+                        "Etapa 1: proiectare, avize și autorizații pentru noul cămin studențesc UPB.",
                       ],
                       [
                         "250.000 lei",
-                        "Ținta exercițiului pe 6 luni, împărțită în 6 etape lunare transparente.",
+                        "Obiectivul pe 6 luni al comunității, împărțit în 6 etape lunare transparente.",
                       ],
                       [
                         "100% direct",
@@ -743,150 +963,347 @@ export default function App() {
               </div>
             </section>
 
-            <footer className="blueprint px-5 py-10 text-white lg:px-10">
-              <div className="mx-auto flex max-w-[1240px] flex-col gap-4 text-xs leading-5 text-[#94A3B8] sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex items-center gap-3">
-                  <img src="/logo-chipin.png" alt="chip in" className="h-7 w-auto" />
-                  <p>Fundația HIPOLITECH · Universitatea Politehnica din București</p>
-                </div>
-                <p>Un loc în cămin poate schimba un destin!</p>
-              </div>
-            </footer>
+            <SiteFooter />
           </>
         )}
 
         {route === "/voluntari" && (
-          <section className="flex-1 bg-[#F7F6F2] px-5 pb-16 pt-24 lg:px-10 lg:pb-24 lg:pt-28">
-            <div className="mx-auto grid max-w-[1240px] gap-10 lg:grid-cols-[42fr_58fr] lg:gap-16 xl:gap-20">
-              <div className="lg:pt-6">
-                <p className="section-kicker">Comunitatea UPB</p>
-                <h1 className="section-title">Devino voluntar în campanie</h1>
-                <p className="section-subtitle">
-                  Ești student și vrei să ajuți la construirea noului cămin UPB? Completează
-                  formularul de mai alături și te contactăm pentru următoarele activități din
-                  campus.
-                </p>
-              </div>
+          <>
+            <section className="flex-1 bg-[#F7F6F2] px-5 pb-16 pt-24 lg:px-10 lg:pb-24 lg:pt-28">
+              <div className="mx-auto grid max-w-[1240px] gap-10 lg:grid-cols-[42fr_58fr] lg:gap-16 xl:gap-20">
+                <div className="lg:pt-6">
+                  <p className="section-kicker">Comunitatea UPB</p>
+                  <h1 className="section-title">Devino voluntar în campanie</h1>
+                  <p className="section-subtitle">
+                    Ești student și vrei să ajuți la construirea noului cămin UPB? Completează
+                    formularul de mai alături și te contactăm pentru următoarele activități din
+                    campus.
+                  </p>
+                </div>
 
-              <div className="lg:self-start">
-                <div className="rounded-[22px] border border-[#E2E8F0] bg-white p-6 text-[#0F172A] shadow-[0_24px_48px_-28px_rgba(11,37,69,0.35)] sm:p-8">
-                  <form className="space-y-5" onSubmit={handleVolunteerSubmit}>
-                    <label className="block">
-                      <span className="field-label">Nume complet</span>
-                      <input
-                        required
-                        type="text"
-                        className="field-input"
-                        value={volunteerFullName}
-                        onChange={(event) => {
-                          setVolunteerFullName(event.target.value);
-                          setVolunteerSent(false);
-                        }}
-                        placeholder="Ex: Andrei Popescu"
-                      />
-                    </label>
-
-                    <div className="grid gap-5 sm:grid-cols-2">
+                <div className="lg:self-start">
+                  <div className="rounded-[22px] border border-[#E2E8F0] bg-white p-6 text-[#0F172A] shadow-[0_24px_48px_-28px_rgba(11,37,69,0.35)] sm:p-8">
+                    <form className="space-y-5" onSubmit={handleVolunteerSubmit}>
                       <label className="block">
-                        <span className="field-label">Număr de telefon</span>
+                        <span className="field-label">Nume complet</span>
                         <input
                           required
-                          type="tel"
-                          className="field-input tabular-nums"
-                          value={volunteerPhone}
-                          onChange={(event) => {
-                            setVolunteerPhone(event.target.value);
-                            setVolunteerSent(false);
-                          }}
-                          placeholder="Ex: 07xx xxx xxx"
-                        />
-                      </label>
-
-                      <label className="block">
-                        <span className="field-label">Email</span>
-                        <input
-                          required
-                          type="email"
+                          type="text"
                           className="field-input"
-                          value={volunteerEmail}
+                          value={volunteerFullName}
                           onChange={(event) => {
-                            setVolunteerEmail(event.target.value);
+                            setVolunteerFullName(event.target.value);
                             setVolunteerSent(false);
                           }}
-                          placeholder="Ex: nume@stud.upb.ro"
+                          placeholder="Ex: Andrei Popescu"
                         />
                       </label>
-                    </div>
 
-                    <label className="block">
-                      <span className="field-label">Facultatea de proveniență</span>
-                      <input
-                        required
-                        type="text"
-                        list="upb-faculties"
-                        className="field-input"
-                        value={volunteerFaculty}
-                        onChange={(event) => {
-                          setVolunteerFaculty(event.target.value);
-                          setVolunteerSent(false);
-                        }}
-                        placeholder="Alege sau scrie facultatea ta"
-                      />
-                      <datalist id="upb-faculties">
-                        {UPB_FACULTIES.map((faculty) => (
-                          <option key={faculty} value={faculty} />
-                        ))}
-                      </datalist>
-                    </label>
+                      <div className="grid gap-5 sm:grid-cols-2">
+                        <label className="block">
+                          <span className="field-label">Număr de telefon</span>
+                          <input
+                            required
+                            type="tel"
+                            className="field-input tabular-nums"
+                            value={volunteerPhone}
+                            onChange={(event) => {
+                              setVolunteerPhone(event.target.value);
+                              setVolunteerSent(false);
+                            }}
+                            placeholder="Ex: 07xx xxx xxx"
+                          />
+                        </label>
 
-                    <label className="block">
-                      <span className="field-label">De ce vrei să faci voluntariat?</span>
-                      <textarea
-                        required
-                        className="field-input min-h-32 resize-y"
-                        value={volunteerReason}
-                        onChange={(event) => {
-                          setVolunteerReason(event.target.value);
-                          setVolunteerSent(false);
-                        }}
-                        placeholder="Scrie câteva rânduri despre motivația ta și cum ai vrea să te implici..."
-                      />
-                    </label>
-
-                    <button type="submit" className="primary-button">
-                      Trimite înscrierea
-                    </button>
-                  </form>
-
-                  {volunteerSent && (
-                    <div className="mt-5 flex flex-col gap-3 rounded-xl border border-[#BBF7D0] bg-[#F0FDF4] px-4 py-3.5 text-sm font-semibold text-[#166534] sm:flex-row sm:items-center sm:justify-between">
-                      <div className="flex items-center gap-2">
-                        <CheckIcon />
-                        <span>
-                          Înscriere înregistrată! Îți mulțumim, {volunteerFullName.trim()}.
-                        </span>
+                        <label className="block">
+                          <span className="field-label">Email</span>
+                          <input
+                            required
+                            type="email"
+                            className="field-input"
+                            value={volunteerEmail}
+                            onChange={(event) => {
+                              setVolunteerEmail(event.target.value);
+                              setVolunteerSent(false);
+                            }}
+                            placeholder="Ex: nume@stud.upb.ro"
+                          />
+                        </label>
                       </div>
-                      <button
-                        type="button"
-                        onClick={resetVolunteerForm}
-                        className="shrink-0 text-xs font-extrabold text-[#166534] underline underline-offset-2 hover:text-[#14532D]"
-                      >
-                        Trimite altă înscriere
+
+                      <label className="block">
+                        <span className="field-label">Facultatea de proveniență</span>
+                        <input
+                          required
+                          type="text"
+                          list="upb-faculties"
+                          className="field-input"
+                          value={volunteerFaculty}
+                          onChange={(event) => {
+                            setVolunteerFaculty(event.target.value);
+                            setVolunteerSent(false);
+                          }}
+                          placeholder="Alege sau scrie facultatea ta"
+                        />
+                        <datalist id="upb-faculties">
+                          {UPB_FACULTIES.map((faculty) => (
+                            <option key={faculty} value={faculty} />
+                          ))}
+                        </datalist>
+                      </label>
+
+                      <label className="block">
+                        <span className="field-label">De ce vrei să faci voluntariat?</span>
+                        <textarea
+                          required
+                          className="field-input min-h-32 resize-y"
+                          value={volunteerReason}
+                          onChange={(event) => {
+                            setVolunteerReason(event.target.value);
+                            setVolunteerSent(false);
+                          }}
+                          placeholder="Scrie câteva rânduri despre motivația ta și cum ai vrea să te implici..."
+                        />
+                      </label>
+
+                      <button type="submit" className="primary-button cursor-pointer">
+                        Trimite înscrierea
                       </button>
-                    </div>
-                  )}
+                    </form>
+
+                    {volunteerSent && (
+                      <div className="mt-5 flex flex-col gap-3 rounded-xl border border-[#BBF7D0] bg-[#F0FDF4] px-4 py-3.5 text-sm font-semibold text-[#166534] sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex items-center gap-2">
+                          <CheckIcon />
+                          <span>
+                            Înscriere înregistrată! Îți mulțumim, {volunteerFullName.trim()}.
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={resetVolunteerForm}
+                          className="shrink-0 cursor-pointer text-xs font-extrabold text-[#166534] underline underline-offset-2 hover:text-[#14532D]"
+                        >
+                          Trimite altă înscriere
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          </section>
+            </section>
+            <SiteFooter />
+          </>
         )}
 
         {route === "/faq" && (
-          <section className="flex-1 bg-[#F7F6F2]" aria-label="FAQ" />
+          <>
+            <section className="flex-1 bg-[#F7F6F2] px-5 pb-20 pt-24 lg:px-10 lg:pb-28 lg:pt-28">
+              <div className="mx-auto max-w-[960px]">
+                <p className="section-kicker">Întrebări frecvente</p>
+                <h1 className="section-title">Tot ce trebuie să știi despre campanie</h1>
+                <p className="section-subtitle">
+                  Răspunsuri clare despre cum funcționează contribuțiile pe Chip In, etapele
+                  proiectului și implicarea comunității UPB.
+                </p>
+
+                <div className="mt-10 space-y-3">
+                  {FAQ_ITEMS.map((item, index) => {
+                    const isOpen = openFaq === index;
+                    return (
+                      <div
+                        key={item.question}
+                        className="overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white transition-colors"
+                      >
+                        <button
+                          type="button"
+                          onClick={() => setOpenFaq(isOpen ? null : index)}
+                          aria-expanded={isOpen}
+                          className="flex w-full cursor-pointer items-center justify-between gap-4 px-5 py-5 text-left sm:px-7"
+                        >
+                          <span className="flex items-baseline gap-3.5 text-[15px] font-extrabold leading-snug text-[#0F172A] sm:text-base">
+                            <span className="text-xs font-extrabold tabular-nums text-[#0B3B6E]">
+                              0{index + 1}
+                            </span>
+                            <span>{item.question}</span>
+                          </span>
+                          <ChevronDownIcon open={isOpen} />
+                        </button>
+                        {isOpen && (
+                          <div className="border-t border-[#F1F5F9] px-5 pb-6 pt-4 sm:px-7 sm:pl-[56px]">
+                            <p className="text-sm leading-7 text-[#475569] sm:text-[15px]">
+                              {item.answer}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className="mt-10 flex flex-col items-start justify-between gap-4 rounded-2xl border border-[#E2E8F0] bg-white p-6 sm:flex-row sm:items-center sm:p-7">
+                  <div>
+                    <p className="text-base font-extrabold text-[#0B2545]">
+                      Vrei să susții direct noul cămin UPB?
+                    </p>
+                    <p className="mt-1 text-sm text-[#475569]">
+                      Alege suma dorită sau implică-te alături de echipa de voluntari.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2.5">
+                    <a
+                      href="/doneaza"
+                      onClick={(event) => {
+                        event.preventDefault();
+                        navigate("/doneaza");
+                      }}
+                      className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-xl bg-[#0B3B6E] px-5 text-sm font-extrabold text-white transition hover:bg-[#0B2545]"
+                    >
+                      Donează acum <ArrowRightIcon />
+                    </a>
+                    <a
+                      href="/voluntari"
+                      onClick={(event) => {
+                        event.preventDefault();
+                        navigate("/voluntari");
+                      }}
+                      className="secondary-button inline-flex min-h-11 cursor-pointer items-center"
+                    >
+                      Devino voluntar
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </section>
+            <SiteFooter />
+          </>
         )}
 
         {route === "/despre-noi" && (
-          <section className="flex-1 bg-[#F7F6F2]" aria-label="Despre noi" />
+          <>
+            <section className="flex-1 bg-[#F7F6F2] px-5 pb-20 pt-24 lg:px-10 lg:pb-28 lg:pt-28">
+              <div className="mx-auto max-w-[1100px]">
+                <p className="section-kicker">Despre noi</p>
+                <h1 className="section-title">
+                  Misiunea noastră: „Un loc în cămin poate schimba un destin!”
+                </h1>
+                <p className="section-subtitle max-w-[780px] text-[17px]">
+                  Chip In este platforma dedicată campaniei de strângere de fonduri pentru
+                  construirea unui nou cămin studențesc al Universității Politehnica din București,
+                  inițiată de Fundația HIPOLITECH. Proiectul este gândit prioritar pentru studenții
+                  cu rezultate academice deosebite și pentru cei care au nevoie de sprijin
+                  financiar, urmărind să le ofere spații moderne de locuire, studiu și comunitate.
+                </p>
+
+                {/* Key milestones strip matching the design system */}
+                <div className="mt-12 grid border-y border-[#CBD5E1] md:grid-cols-3">
+                  {[
+                    [
+                      "100.000.000 lei",
+                      "Investiția totală estimată pentru construirea de la zero a noului cămin studențesc UPB.",
+                    ],
+                    [
+                      "1.250.000 lei",
+                      "Prima etapă a proiectului: proiectare, avize și autorizații necesare demarării lucrărilor.",
+                    ],
+                    [
+                      "250.000 lei",
+                      "Obiectivul mobilizării comunității în șase etape lunare transparente pe Chip In.",
+                    ],
+                  ].map(([stat, description], index) => (
+                    <div
+                      key={stat}
+                      className={`py-8 md:px-7 ${index > 0 ? "border-t border-[#CBD5E1] md:border-l md:border-t-0" : "md:pl-0"}`}
+                    >
+                      <p className="text-[11px] font-bold tabular-nums text-[#94A3B8]">
+                        0{index + 1}
+                      </p>
+                      <p className="mt-2.5 text-3xl font-extrabold tabular-nums tracking-[-0.01em] text-[#0B3B6E] lg:text-[34px]">
+                        {stat}
+                      </p>
+                      <p className="mt-2.5 text-sm leading-6 text-[#475569]">{description}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Editorial story cards */}
+                <div className="mt-12 grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+                  <article className="rounded-[22px] border border-[#E2E8F0] bg-white p-6 shadow-[0_24px_48px_-28px_rgba(11,37,69,0.2)] sm:p-8">
+                    <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-[#0B3B6E]">
+                      01 · De ce am creat această platformă
+                    </p>
+                    <h2 className="mt-3 text-2xl font-extrabold tracking-[-0.01em] text-[#0F172A]">
+                      Proiectele mari se clădesc din pași clari și vizibili
+                    </h2>
+                    <div className="mt-4 space-y-4 text-[15px] leading-7 text-[#475569]">
+                      <p>
+                        Construirea unui cămin de la zero este un obiectiv ambițios, cu o investiție
+                        totală estimată la{" "}
+                        <span className="font-bold text-[#0F172A] tabular-nums">
+                          100.000.000 lei
+                        </span>
+                        . Când vezi o astfel de sumă, este firesc să te întrebi dacă o contribuție
+                        de 50 sau 100 de lei chiar poate schimba ceva. Noi credem că proiectele mari
+                        se clădesc din pași clari și vizibili.
+                      </p>
+                      <p>
+                        De aceea, am organizat mobilizarea comunității în șase etape lunare
+                        transparente, cu un obiectiv de{" "}
+                        <span className="font-bold text-[#0F172A] tabular-nums">250.000 lei</span>,
+                        direcționat către prima etapă a proiectului: proiectare, avize și
+                        autorizații, estimată la{" "}
+                        <span className="font-bold text-[#0F172A] tabular-nums">1.250.000 lei</span>
+                        . Pe Chip In, părinții, susținătorii și companiile văd în timp real
+                        progresul campaniei, își pot calcula impactul, pot contribui direct online
+                        și pot lăsa un gând bun primei generații de studenți prin Capsula Timpului.
+                      </p>
+                    </div>
+                  </article>
+
+                  <article className="flex flex-col justify-between rounded-[22px] border border-[#E2E8F0] bg-white p-6 shadow-[0_24px_48px_-28px_rgba(11,37,69,0.2)] sm:p-8">
+                    <div>
+                      <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-[#0B3B6E]">
+                        02 · Transparență și responsabilitate
+                      </p>
+                      <h2 className="mt-3 text-2xl font-extrabold tracking-[-0.01em] text-[#0F172A]">
+                        Comunicare deschisă la fiecare etapă
+                      </h2>
+                      <p className="mt-4 text-[15px] leading-7 text-[#475569]">
+                        Fiecare etapă a proiectului este comunicată deschis, pornind de la reperele
+                        publice ale Fundației HIPOLITECH. Contribuțiile atrase direct prin Chip In
+                        susțin obiectivul comun de finanțare al noului cămin, iar detaliile tehnice
+                        pot evolua pe parcursul fazei de proiectare și avizare.
+                      </p>
+                    </div>
+
+                    <div className="mt-8 flex flex-wrap gap-3 border-t border-[#E2E8F0] pt-6">
+                      <a
+                        href="/doneaza"
+                        onClick={(event) => {
+                          event.preventDefault();
+                          navigate("/doneaza");
+                        }}
+                        className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-xl bg-[#0B3B6E] px-5 text-sm font-extrabold text-white transition hover:bg-[#0B2545]"
+                      >
+                        Donează acum <ArrowRightIcon />
+                      </a>
+                      <a
+                        href="/voluntari"
+                        onClick={(event) => {
+                          event.preventDefault();
+                          navigate("/voluntari");
+                        }}
+                        className="secondary-button inline-flex min-h-11 cursor-pointer items-center"
+                      >
+                        Devino voluntar
+                      </a>
+                    </div>
+                  </article>
+                </div>
+              </div>
+            </section>
+            <SiteFooter />
+          </>
         )}
       </main>
     </div>
