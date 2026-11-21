@@ -2,8 +2,82 @@ import { type FormEvent, useEffect, useState } from "react";
 
 type PageRoute = "/" | "/doneaza" | "/voluntari" | "/faq" | "/despre-noi";
 
-const monthlyTargets = [20000, 30000, 40000, 45000, 55000, 60000];
-const quickAmounts = { person: [50, 100, 250], company: [500, 1000, 2500] };
+const ROADMAP_MONTHS = [
+  {
+    month: 1,
+    phase: "Lansare & A/B test",
+    parentsCount: 50,
+    parentsAmount: 5000,
+    companiesCount: 1,
+    companiesAmount: 10000,
+    monthlyTarget: 15000,
+    cumulativeTarget: 15000,
+    budgetSpent: 3500,
+    supporters: 32,
+  },
+  {
+    month: 2,
+    phase: "Optimizare mesaje",
+    parentsCount: 50,
+    parentsAmount: 5000,
+    companiesCount: 2,
+    companiesAmount: 20000,
+    monthlyTarget: 25000,
+    cumulativeTarget: 40000,
+    budgetSpent: 2500,
+    supporters: 64,
+  },
+  {
+    month: 3,
+    phase: "Activare voluntari & Capsulă",
+    parentsCount: 50,
+    parentsAmount: 5000,
+    companiesCount: 3,
+    companiesAmount: 30000,
+    monthlyTarget: 35000,
+    cumulativeTarget: 75000,
+    budgetSpent: 2500,
+    supporters: 98,
+  },
+  {
+    month: 4,
+    phase: "Accelerare comunitate",
+    parentsCount: 100,
+    parentsAmount: 10000,
+    companiesCount: 4,
+    companiesAmount: 40000,
+    monthlyTarget: 50000,
+    cumulativeTarget: 125000,
+    budgetSpent: 2500,
+    supporters: 162,
+  },
+  {
+    month: 5,
+    phase: "Scalare sponsori corporate",
+    parentsCount: 100,
+    parentsAmount: 10000,
+    companiesCount: 5,
+    companiesAmount: 50000,
+    monthlyTarget: 60000,
+    cumulativeTarget: 185000,
+    budgetSpent: 2000,
+    supporters: 230,
+  },
+  {
+    month: 6,
+    phase: "Impuls final & închidere",
+    parentsCount: 150,
+    parentsAmount: 15000,
+    companiesCount: 5,
+    companiesAmount: 50000,
+    monthlyTarget: 65000,
+    cumulativeTarget: 250000,
+    budgetSpent: 2000,
+    supporters: 325,
+  },
+];
+
+const quickAmounts = { person: [50, 100, 250], company: [2500, 5000, 10000] };
 const DEFAULT_MESSAGE = "Mult succes în prima sesiune! Să vă fie acest loc un început bun.";
 const DEFAULT_NAME = "Un susținător Chip In";
 
@@ -195,7 +269,8 @@ export default function App() {
     window.scrollTo({ top: 0 });
   };
 
-  const target = monthlyTargets[month];
+  const currentMonth = ROADMAP_MONTHS[month];
+  const target = currentMonth.cumulativeTarget;
   const existing = Math.round(target * 0.62);
   const totalContribution = frequency === "monthly" ? amount * 6 : amount;
   const addedPercent = Math.min((totalContribution / target) * 100, 38);
@@ -207,7 +282,7 @@ export default function App() {
 
   const switchSupporter = (type: "person" | "company") => {
     setSupporterType(type);
-    setAmount(quickAmounts[type][1]);
+    setAmount(type === "company" ? 10000 : quickAmounts[type][1]);
     setDonationConfirmed(false);
   };
 
@@ -434,13 +509,16 @@ export default function App() {
                   <p className="section-kicker">Contribuție directă</p>
                   <h2 className="section-title">Vezi cum contează contribuția ta</h2>
                   <p className="section-subtitle">
-                    Obiectivul comunității este de 250.000 de lei în 6 luni, direcționat către
-                    prima etapă a proiectului: proiectare, avize și autorizații (1.250.000 de lei).
+                    Mobilizarea comunității crește treptat în 6 etape lunare transparente, de la{" "}
+                    <span className="font-semibold text-[#0F172A] tabular-nums">15.000 lei</span> în
+                    prima lună până la{" "}
+                    <span className="font-semibold text-[#0F172A] tabular-nums">250.000 lei</span>{" "}
+                    cumulat la finalul celor 6 luni (20% din Etapa 1).
                   </p>
                   <div className="mt-8 grid max-w-[500px] grid-cols-2 border-y border-[#E2E8F0]">
                     {[
-                      ["Etapa 1", "1.250.000 lei"],
-                      ["Țintă 6 luni", "250.000 lei"],
+                      ["Start · Luna 1", "15.000 lei"],
+                      ["Cumulat · Luna 6", "250.000 lei"],
                     ].map(([label, value], index) => (
                       <div
                         key={label}
@@ -482,22 +560,22 @@ export default function App() {
 
                     {/* Roadmap milestone track */}
                     <div className="mt-5">
-                      <div className="mb-2.5 flex items-baseline justify-between">
+                      <div className="mb-2.5 flex flex-wrap items-baseline justify-between gap-2">
                         <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-[#64748B]">
-                          Foaie de parcurs
+                          Foaie de parcurs · {currentMonth.phase}
                         </p>
                         <p className="text-[13px] font-bold tabular-nums text-[#0B3B6E]">
-                          Ținta lunii {month + 1}: {formatLei(target)} lei
+                          Cumulat Luna {currentMonth.month}: {formatLei(target)} lei
                         </p>
                       </div>
                       <div className="grid grid-cols-6 gap-1">
-                        {monthlyTargets.map((value, index) => {
+                        {ROADMAP_MONTHS.map((item, index) => {
                           const active = month === index;
                           const passed = index < month;
                           return (
                             <button
                               type="button"
-                              key={index}
+                              key={item.month}
                               onClick={() => setMonth(index)}
                               aria-pressed={active}
                               className="group cursor-pointer text-left"
@@ -526,11 +604,15 @@ export default function App() {
                                 <span
                                   className={`text-xs font-extrabold ${active ? "text-[#0F172A]" : "text-[#94A3B8]"}`}
                                 >
-                                  Luna {index + 1}
+                                  Luna {item.month}
                                 </span>
                               </span>
-                              <span className="mt-0.5 hidden pl-3 text-[10px] font-semibold tabular-nums text-[#94A3B8] sm:block">
-                                {formatLei(value / 1000)}k
+                              <span
+                                className={`mt-0.5 hidden pl-3 text-[10px] font-bold tabular-nums sm:block ${
+                                  active ? "text-[#0B3B6E]" : "text-[#94A3B8]"
+                                }`}
+                              >
+                                {formatLei(item.cumulativeTarget / 1000)}k
                               </span>
                             </button>
                           );
@@ -548,12 +630,13 @@ export default function App() {
                               strânși
                             </span>
                           </p>
-                          <p className="mt-0.5 text-xs font-semibold text-[#64748B]">
-                            • 124 susținători
+                          <p className="mt-0.5 text-xs font-semibold tabular-nums text-[#64748B]">
+                            • {currentMonth.supporters} susținători · țintă lunară{" "}
+                            {formatLei(currentMonth.monthlyTarget)} lei
                           </p>
                         </div>
                         <p className="pb-0.5 text-right text-sm font-extrabold tabular-nums text-[#0B3B6E]">
-                          62% <span className="font-semibold text-[#64748B]">din ținta lunii</span>
+                          62% <span className="font-semibold text-[#64748B]">din reper</span>
                         </p>
                       </div>
 
@@ -582,7 +665,7 @@ export default function App() {
 
                       <p className="mt-2 text-[13px] font-semibold leading-5 text-[#0F172A]">
                         {supportersNeeded === 0 ? (
-                          <>Contribuția ta acoperă integral ținta lunii {month + 1}.</>
+                          <>Contribuția ta acoperă integral reperul cumulat al lunii {currentMonth.month}.</>
                         ) : (
                           <>
                             Cu această contribuție, mai sunt necesari doar{" "}
@@ -590,13 +673,17 @@ export default function App() {
                               {supportersNeeded}{" "}
                               {supportersNeeded === 1 ? "susținător" : "susținători"}
                             </span>{" "}
-                            pentru a atinge ținta lunii {month + 1}.
+                            pentru a atinge reperul de {formatLei(target)} lei din Luna{" "}
+                            {currentMonth.month}.
                           </>
                         )}
                       </p>
-                      <p className="mt-2.5 border-t border-[#E2E8F0] pt-2.5 text-[11px] leading-4 text-[#64748B]">
-                        Contribuie direct la Etapa 1 (proiectare, avize, autorizații): 1.250.000
-                        lei.
+                      <p className="mt-2.5 border-t border-[#E2E8F0] pt-2.5 text-[11px] leading-4 tabular-nums text-[#64748B]">
+                        Obiectiv Luna {currentMonth.month}: {currentMonth.parentsCount} părinți (
+                        {formatLei(currentMonth.parentsAmount)} lei) +{" "}
+                        {currentMonth.companiesCount}{" "}
+                        {currentMonth.companiesCount === 1 ? "companie" : "companii"} (
+                        {formatLei(currentMonth.companiesAmount)} lei).
                       </p>
                     </div>
 
@@ -923,24 +1010,24 @@ export default function App() {
               </div>
             </section>
 
-            {/* TRANSPARENȚĂ — soft slate */}
+            {/* TRANSPARENȚĂ & PLAN PE 6 LUNI — soft slate */}
             <section className="border-t border-[#E2E8F0] bg-[#F1F5F9] px-5 py-20 lg:px-10 lg:py-24">
               <div className="mx-auto max-w-[1240px]">
                 <div id="transparenta" className="scroll-mt-24">
-                  <p className="section-kicker">Unde merg contribuțiile</p>
+                  <p className="section-kicker">Planul campaniei pe 6 luni</p>
                   <div className="mt-6 grid border-y border-[#CBD5E1] md:grid-cols-3">
                     {[
                       [
-                        "1.250.000 lei",
-                        "Etapa 1: proiectare, avize și autorizații pentru noul cămin studențesc UPB.",
-                      ],
-                      [
                         "250.000 lei",
-                        "Obiectivul pe 6 luni al comunității, împărțit în 6 etape lunare transparente.",
+                        "Obiectivul pe 6 luni (20% din Etapa 1): 500 părinți (50.000 lei) + 20 companii (200.000 lei).",
                       ],
                       [
-                        "100% direct",
-                        "Fără intermediari. Fiecare contribuție susține direct noul cămin UPB.",
+                        "235.000 lei net",
+                        "Fonduri nete direcționate direct către noul cămin, cu un buget operațional total de 15.000 lei.",
+                      ],
+                      [
+                        "1.250.000 lei",
+                        "Etapa 1 completă: proiectare, avize și autorizații pentru noul cămin studențesc UPB.",
                       ],
                     ].map(([stat, description], index) => (
                       <div
@@ -950,7 +1037,7 @@ export default function App() {
                         <p className="text-[11px] font-bold tabular-nums text-[#94A3B8]">
                           0{index + 1}
                         </p>
-                        <p className="mt-3 text-[34px] font-extrabold tabular-nums tracking-[-0.01em] text-[#0B3B6E] lg:text-[42px]">
+                        <p className="mt-3 text-[34px] font-extrabold tabular-nums tracking-[-0.01em] text-[#0B3B6E] lg:text-[40px]">
                           {stat}
                         </p>
                         <p className="mt-3 max-w-[320px] text-sm leading-6 text-[#475569]">
@@ -958,6 +1045,91 @@ export default function App() {
                         </p>
                       </div>
                     ))}
+                  </div>
+
+                  {/* 6-month structured roadmap table */}
+                  <div className="mt-10 overflow-hidden rounded-[22px] border border-[#E2E8F0] bg-white shadow-[0_24px_48px_-28px_rgba(11,37,69,0.22)]">
+                    <div className="overflow-x-auto">
+                      <table className="w-full min-w-[780px] border-collapse text-left text-sm">
+                        <thead>
+                          <tr className="border-b border-[#E2E8F0] bg-[#F8FAFC] text-[11px] font-extrabold uppercase tracking-[0.12em] text-[#64748B]">
+                            <th className="px-5 py-4">Etapă</th>
+                            <th className="px-5 py-4">Fază de campanie</th>
+                            <th className="px-5 py-4">Părinți (× 100 lei)</th>
+                            <th className="px-5 py-4">Companii (× 10.000 lei)</th>
+                            <th className="px-5 py-4 text-right">Țintă lunară</th>
+                            <th className="px-5 py-4 text-right">Cumulat</th>
+                            <th className="px-5 py-4 text-right">Buget cheltuit</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-[#E2E8F0] tabular-nums">
+                          {ROADMAP_MONTHS.map((item, index) => {
+                            const active = month === index;
+                            return (
+                              <tr
+                                key={item.month}
+                                onClick={() => setMonth(index)}
+                                className={`cursor-pointer transition-colors ${
+                                  active ? "bg-[#EFF6FF]/80" : "hover:bg-[#F8FAFC]"
+                                }`}
+                              >
+                                <td className="px-5 py-4 font-extrabold text-[#0B2545]">
+                                  <span className="inline-flex items-center gap-2">
+                                    <span
+                                      className={`size-2 rounded-full ${
+                                        active ? "bg-[#F59E0B]" : "bg-[#CBD5E1]"
+                                      }`}
+                                    />
+                                    Luna {item.month}
+                                  </span>
+                                </td>
+                                <td className="px-5 py-4 font-semibold text-[#334155]">
+                                  {item.phase}
+                                </td>
+                                <td className="px-5 py-4 text-[#475569]">
+                                  <span className="font-bold text-[#0F172A]">
+                                    {item.parentsCount}
+                                  </span>{" "}
+                                  ({formatLei(item.parentsAmount)} lei)
+                                </td>
+                                <td className="px-5 py-4 text-[#475569]">
+                                  <span className="font-bold text-[#0F172A]">
+                                    {item.companiesCount}
+                                  </span>{" "}
+                                  ({formatLei(item.companiesAmount)} lei)
+                                </td>
+                                <td className="px-5 py-4 text-right font-semibold text-[#475569]">
+                                  {formatLei(item.monthlyTarget)} lei
+                                </td>
+                                <td className="px-5 py-4 text-right font-extrabold text-[#0B3B6E]">
+                                  {formatLei(item.cumulativeTarget)} lei
+                                </td>
+                                <td className="px-5 py-4 text-right text-[#64748B]">
+                                  {formatLei(item.budgetSpent)} lei
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                        <tfoot>
+                          <tr className="border-t-2 border-[#CBD5E1] bg-[#0B2545] text-white tabular-nums">
+                            <td className="px-5 py-4 font-extrabold">TOTAL</td>
+                            <td className="px-5 py-4 font-semibold text-[#CBD5E1]">
+                              6 luni (20% din Etapa 1)
+                            </td>
+                            <td className="px-5 py-4 font-semibold">500 (50.000 lei)</td>
+                            <td className="px-5 py-4 font-semibold">20 (200.000 lei)</td>
+                            <td className="px-5 py-4 text-right font-bold">250.000 lei</td>
+                            <td className="px-5 py-4 text-right font-extrabold text-[#F59E0B]">
+                              235.000 lei net
+                            </td>
+                            <td className="px-5 py-4 text-right font-semibold text-[#CBD5E1]">
+                              15.000 lei
+                            </td>
+                          </tr>
+                        </tfoot>
+                      </table>
+                    </div>
                   </div>
                 </div>
               </div>
