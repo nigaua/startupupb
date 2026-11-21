@@ -167,9 +167,9 @@ export default function App() {
     }`;
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#F8FAFC] text-[#0F172A]">
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0B2545]/95 backdrop-blur">
-        <div className="mx-auto flex h-16 max-w-[1320px] items-center justify-between gap-4 px-5 lg:px-10">
+    <div className="flex min-h-[100dvh] flex-col bg-[#F8FAFC] text-[#0F172A]">
+      <header className="pointer-events-none fixed inset-x-0 top-3.5 z-40 flex justify-center px-3 sm:px-5">
+        <div className="pointer-events-auto flex h-12 w-fit max-w-full items-center gap-4 rounded-2xl border border-white/15 bg-[#0B2545]/92 px-3.5 shadow-[0_14px_34px_-12px_rgba(2,8,23,0.55),inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-md sm:gap-6 sm:px-5">
           <a
             href="/"
             onClick={(event) => {
@@ -177,21 +177,23 @@ export default function App() {
               navigate("/");
             }}
             aria-label="chip in — Acasă"
-            className="flex shrink-0 items-center"
+            className="flex shrink-0 cursor-pointer items-center rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
           >
             <img
               src="/logo-chipin.png"
               alt="chip in"
-              className="h-8 w-auto select-none sm:h-9"
+              className="h-6 w-auto select-none sm:h-7"
             />
           </a>
 
+          <span aria-hidden="true" className="h-4 w-px shrink-0 bg-white/15" />
+
           <nav
             aria-label="Navigație principală"
-            className="flex items-center gap-5 text-xs font-semibold text-white/70 sm:gap-9 sm:text-sm"
+            className="flex items-center gap-4 text-xs font-semibold text-white/75 sm:gap-6 sm:text-[13px]"
           >
             <a
-              className="nav-link"
+              className="nav-link cursor-pointer whitespace-nowrap"
               data-active={route === "/doneaza" ? "true" : undefined}
               href="/doneaza"
               onClick={(event) => {
@@ -202,7 +204,7 @@ export default function App() {
               Donează
             </a>
             <a
-              className="nav-link"
+              className="nav-link cursor-pointer whitespace-nowrap"
               data-active={route === "/voluntari" ? "true" : undefined}
               href="/voluntari"
               onClick={(event) => {
@@ -213,7 +215,7 @@ export default function App() {
               Voluntari
             </a>
             <a
-              className="nav-link"
+              className="nav-link cursor-pointer whitespace-nowrap"
               data-active={route === "/faq" ? "true" : undefined}
               href="/faq"
               onClick={(event) => {
@@ -224,7 +226,7 @@ export default function App() {
               FAQ
             </a>
             <a
-              className="nav-link"
+              className="nav-link cursor-pointer whitespace-nowrap"
               data-active={route === "/despre-noi" ? "true" : undefined}
               href="/despre-noi"
               onClick={(event) => {
@@ -277,7 +279,7 @@ export default function App() {
               />
             </div>
 
-            <div className="relative z-10 mx-auto flex w-full max-w-[1320px] flex-1 flex-col justify-center px-5 pb-20 pt-10 sm:py-20 lg:px-10 lg:py-12">
+            <div className="relative z-10 mx-auto flex w-full max-w-[1320px] flex-1 flex-col justify-center px-5 pb-16 pt-24 sm:py-24 lg:px-10 lg:py-20">
               <p className="mb-6 inline-flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.18em] text-white/75">
                 <span className="h-px w-8 bg-white/45" />
                 Fundația HIPOLITECH ·{" "}
@@ -334,7 +336,7 @@ export default function App() {
             {/* SIMULATOR — warm paper */}
             <section
               id="simulator"
-              className="scroll-mt-16 border-b border-[#E2E8F0] bg-[#F7F6F2] px-5 py-16 lg:px-10 lg:py-24"
+              className="scroll-mt-20 border-b border-[#E2E8F0] bg-[#F7F6F2] px-5 pb-16 pt-24 lg:px-10 lg:pb-24 lg:pt-28"
             >
               <div className="mx-auto grid max-w-[1240px] gap-10 lg:grid-cols-[42fr_58fr] lg:gap-16 xl:gap-20">
                 <div className="lg:pt-6">
@@ -754,7 +756,7 @@ export default function App() {
         )}
 
         {route === "/voluntari" && (
-          <section className="flex-1 bg-[#F7F6F2] px-5 py-16 lg:px-10 lg:py-24">
+          <section className="flex-1 bg-[#F7F6F2] px-5 pb-16 pt-24 lg:px-10 lg:pb-24 lg:pt-28">
             <div className="mx-auto grid max-w-[1240px] gap-10 lg:grid-cols-[42fr_58fr] lg:gap-16 xl:gap-20">
               <div className="lg:pt-6">
                 <p className="section-kicker">Comunitatea UPB</p>
