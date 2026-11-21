@@ -1,0 +1,10 @@
+{
+  "description": "Simulează donații pentru proiectul de cămin UPB, arată progresul campaniei și permite susținătorilor să creeze mesaje de încurajare și studenților să se înscrie ca voluntari.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
