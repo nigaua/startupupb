@@ -38,7 +38,8 @@
     transition: color 160ms ease;
   }
 
-  .nav-link:hover {
+  .nav-link:hover,
+  .nav-link[data-active="true"] {
     color: #ffffff;
   }
 
@@ -54,7 +55,8 @@
     transition: transform 160ms ease;
   }
 
-  .nav-link:hover::after {
+  .nav-link:hover::after,
+  .nav-link[data-active="true"]::after {
     transform: scaleX(1);
   }
 
