@@ -69,66 +69,6 @@ function CheckIcon() {
   );
 }
 
-/* Hairline façade drawing: the project is in its design stage, so the hero shows a blueprint. */
-function DormElevation() {
-  const floors = [0, 1, 2, 3, 4, 5];
-  const columns = [0, 1, 2, 3, 4];
-  return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 440 540"
-      fill="none"
-      stroke="currentColor"
-      className="pointer-events-none absolute bottom-0 right-10 hidden h-[78%] max-h-[620px] w-auto text-white opacity-[0.16] xl:block"
-    >
-      <path d="M0 500H440" strokeWidth="1.5" />
-      <rect x="60" y="80" width="300" height="420" strokeWidth="1.5" />
-      <path d="M60 100H360M52 80H368" strokeWidth="1" />
-      {floors.map((floor) =>
-        columns.map((column) => {
-          const isEntrance = floor === 5 && column === 2;
-          return isEntrance ? null : (
-            <rect
-              key={`${floor}-${column}`}
-              x={85 + column * 55}
-              y={118 + floor * 62}
-              width="30"
-              height="36"
-              strokeWidth="1"
-            />
-          );
-        }),
-      )}
-      <path d="M185 500V440H235V500M210 440V500" strokeWidth="1" />
-      <path d="M398 80V500M392 86l12-12M392 506l12-12M380 80h24M380 500h24" strokeWidth="0.75" />
-      <path d="M60 522H360M54 528l12-12M354 528l12-12M60 512v18M360 512v18" strokeWidth="0.75" />
-      <text
-        x="418"
-        y="290"
-        fill="currentColor"
-        stroke="none"
-        fontSize="10"
-        letterSpacing="2"
-        transform="rotate(90 418 290)"
-        textAnchor="middle"
-      >
-        ETAPA 1 · PROIECTARE
-      </text>
-      <text
-        x="210"
-        y="538"
-        fill="currentColor"
-        stroke="none"
-        fontSize="10"
-        letterSpacing="2"
-        textAnchor="middle"
-      >
-        NOUL CĂMIN UPB · FAȚADĂ DE PRINCIPIU
-      </text>
-    </svg>
-  );
-}
-
 export default function App() {
   const [route, setRoute] = useState<PageRoute>(() => normalizeRoute(window.location.pathname));
 
@@ -302,25 +242,58 @@ export default function App() {
         {route === "/" && (
           /* HERO — prima pagină: doar prima parte până la cele două butoane */
           <section className="blueprint relative flex flex-1 flex-col overflow-hidden text-white">
-            <div className="relative mx-auto flex w-full max-w-[1320px] flex-1 flex-col justify-center px-5 pb-20 pt-10 sm:py-20 lg:px-10 lg:py-12">
-              <DormElevation />
+            {/* Desktop/PC architectural dorm background with seamless blueprint-to-photo scrim */}
+            <div aria-hidden="true" className="pointer-events-none absolute inset-0 hidden lg:block">
+              <img
+                src="/hero-camine.webp"
+                alt=""
+                fetchPriority="high"
+                decoding="async"
+                className="absolute inset-y-0 right-0 h-full w-[70%] object-cover object-center xl:w-[66%]"
+              />
+              {/* Left-to-right directional scrim: guarantees WCAG AAA contrast behind text while revealing the dorm clearly on the right */}
+              <div
+                className="absolute inset-0"
+                style={{
+                  background:
+                    "linear-gradient(90deg, #0B2545 0%, #0B2545 31%, rgba(11, 37, 69, 0.94) 42%, rgba(11, 37, 69, 0.56) 56%, rgba(11, 37, 69, 0.16) 76%, rgba(11, 37, 69, 0.24) 100%)",
+                }}
+              />
+              {/* Subtle top & bottom framing vignette to blend with navbar and viewport edge */}
+              <div
+                className="absolute inset-0"
+                style={{
+                  background:
+                    "linear-gradient(180deg, rgba(11, 37, 69, 0.48) 0%, rgba(11, 37, 69, 0) 18%, rgba(11, 37, 69, 0) 80%, rgba(11, 37, 69, 0.52) 100%)",
+                }}
+              />
+              {/* Faint blueprint grid fading from left into the architectural render */}
+              <div
+                className="architectural-grid absolute inset-0 opacity-20"
+                style={{
+                  maskImage: "linear-gradient(90deg, black 0%, black 34%, transparent 66%)",
+                  WebkitMaskImage: "linear-gradient(90deg, black 0%, black 34%, transparent 66%)",
+                }}
+              />
+            </div>
 
-              <p className="mb-6 inline-flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.18em] text-white/60">
-                <span className="h-px w-8 bg-white/40" />
+            <div className="relative z-10 mx-auto flex w-full max-w-[1320px] flex-1 flex-col justify-center px-5 pb-20 pt-10 sm:py-20 lg:px-10 lg:py-12">
+              <p className="mb-6 inline-flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.18em] text-white/75">
+                <span className="h-px w-8 bg-white/45" />
                 Fundația HIPOLITECH ·{" "}
                 <span className="sm:hidden">UPB</span>
                 <span className="hidden sm:inline">Universitatea Politehnica din București</span>
               </p>
-              <h1 className="relative max-w-[760px] text-balance text-[40px] font-bold leading-[1.1] tracking-normal sm:text-6xl xl:text-[68px]">
+              <h1 className="relative max-w-[680px] text-balance text-[40px] font-bold leading-[1.1] tracking-normal sm:text-6xl xl:text-[66px]">
                 Un loc în cămin poate schimba un destin!
               </h1>
 
-              <div className="relative mt-6 max-w-[640px] space-y-4 text-pretty sm:mt-8">
+              <div className="relative mt-6 max-w-[580px] space-y-4 text-pretty sm:mt-8">
                 <p className="text-lg leading-[1.6] text-white sm:text-xl">
                   Pentru mulți tineri veniți din alte orașe, primul an la Politehnică începe cu o
                   întrebare grea: unde voi locui?
                 </p>
-                <p className="text-base leading-[1.7] text-[#CBD5E1] sm:text-[17px]">
+                <p className="text-base leading-[1.7] text-[#E2E8F0] sm:text-[17px]">
                   Un loc în cămin înseamnă mai mult decât un pat. Înseamnă liniștea de a învăța,
                   colegi alături și puterea de a merge mai departe. Fundația HIPOLITECH strânge
                   fonduri pentru noul cămin al UPB, iar prima etapă (proiectare, avize și
@@ -337,7 +310,7 @@ export default function App() {
                     event.preventDefault();
                     navigate("/doneaza");
                   }}
-                  className="inline-flex min-h-12 items-center justify-center gap-2 whitespace-nowrap rounded-lg bg-white px-4 text-[15px] font-bold text-[#0B2545] transition-[background-color,scale] duration-150 ease-out hover:bg-[#F7F6F2] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:scale-[0.96] sm:pe-6 sm:ps-7"
+                  className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-lg bg-white px-4 text-[15px] font-bold text-[#0B2545] shadow-[0_12px_28px_-8px_rgba(2,8,23,0.45)] transition-[background-color,transform] duration-150 ease-out hover:bg-[#F7F6F2] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:scale-[0.97] sm:pe-6 sm:ps-7"
                 >
                   Donează acum <ArrowRightIcon />
                 </a>
@@ -347,7 +320,7 @@ export default function App() {
                     event.preventDefault();
                     navigate("/voluntari");
                   }}
-                  className="inline-flex min-h-12 items-center justify-center whitespace-nowrap rounded-lg border border-white/40 px-4 text-[15px] font-bold text-white transition-[background-color,border-color,scale] duration-150 ease-out hover:border-white hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:scale-[0.96] sm:px-7"
+                  className="inline-flex min-h-12 cursor-pointer items-center justify-center whitespace-nowrap rounded-lg border border-white/45 bg-[#0B2545]/45 px-4 text-[15px] font-bold text-white backdrop-blur-[2px] transition-[background-color,border-color,transform] duration-150 ease-out hover:border-white hover:bg-[#0B2545]/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:scale-[0.97] sm:px-7"
                 >
                   Devino voluntar
                 </a>
