@@ -227,7 +227,7 @@ export default function App() {
     }`;
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-[#0F172A]">
+    <div className="flex min-h-screen flex-col bg-[#F8FAFC] text-[#0F172A]">
       <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0B2545]/95 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-[1320px] items-center justify-between gap-4 px-5 lg:px-10">
           <a
@@ -298,11 +298,11 @@ export default function App() {
         </div>
       </header>
 
-      <main>
+      <main className="flex flex-1 flex-col">
         {route === "/" && (
           /* HERO — prima pagină: doar prima parte până la cele două butoane */
-          <section className="blueprint relative overflow-hidden text-white">
-            <div className="relative mx-auto flex min-h-[calc(100svh-64px)] max-w-[1320px] flex-col justify-center px-5 pb-20 pt-10 sm:py-20 lg:px-10 lg:py-12">
+          <section className="blueprint relative flex flex-1 flex-col overflow-hidden text-white">
+            <div className="relative mx-auto flex w-full max-w-[1320px] flex-1 flex-col justify-center px-5 pb-20 pt-10 sm:py-20 lg:px-10 lg:py-12">
               <DormElevation />
 
               <p className="mb-6 inline-flex items-center gap-3 text-[11px] font-bold uppercase tracking-[0.18em] text-white/60">
@@ -781,7 +781,7 @@ export default function App() {
         )}
 
         {route === "/voluntari" && (
-          <section className="min-h-[calc(100svh-64px)] bg-[#F7F6F2] px-5 py-16 lg:px-10 lg:py-24">
+          <section className="flex-1 bg-[#F7F6F2] px-5 py-16 lg:px-10 lg:py-24">
             <div className="mx-auto grid max-w-[1240px] gap-10 lg:grid-cols-[42fr_58fr] lg:gap-16 xl:gap-20">
               <div className="lg:pt-6">
                 <p className="section-kicker">Comunitatea UPB</p>
@@ -907,11 +907,11 @@ export default function App() {
         )}
 
         {route === "/faq" && (
-          <section className="min-h-[calc(100svh-64px)] bg-[#F7F6F2]" aria-label="FAQ" />
+          <section className="flex-1 bg-[#F7F6F2]" aria-label="FAQ" />
         )}
 
         {route === "/despre-noi" && (
-          <section className="min-h-[calc(100svh-64px)] bg-[#F7F6F2]" aria-label="Despre noi" />
+          <section className="flex-1 bg-[#F7F6F2]" aria-label="Despre noi" />
         )}
       </main>
     </div>
